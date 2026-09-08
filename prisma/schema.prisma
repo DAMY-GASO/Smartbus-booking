@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  AGENT
+}
+
+enum TripStatus {
+  SCHEDULED
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REFUNDED
+}
+
+enum ParcelStatus {
+  RECEIVED
+  IN_TRANSIT
+  DELIVERED
+  RETURNED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(AGENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+  parcels  Parcel[]
+}
+
+model Bus {
+  id           String   @id @default(cuid())
+  plateNumber  String   @unique
+  name         String
+  capacity     Int
+  make         String?
+  model        String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  trips Trip[]
+}
+
+model Route {
+  id            String  @id @default(cuid())
+  origin        String
+  destination   String
+  distanceKm    Float?
+  estimatedTime Int? // minutes
+
+  trips Trip[]
+}
+
+model Trip {
+  id          String     @id @default(cuid())
+  busId       String
+  routeId     String
+  departureAt DateTime
+  arrivalAt   DateTime?
+  fare        Float
+  status      TripStatus @default(SCHEDULED)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  bus      Bus       @relation(fields: [busId], references: [id])
+  route    Route     @relation(fields: [routeId], references: [id])
+  bookings Booking[]
+  parcels  Parcel[]
+}
+
+model Booking {
+  id            String        @id @default(cuid())
+  tripId        String
+  agentId       String
+  passengerName String
+  phone         String
+  seatNumber    Int
+  status        BookingStatus @default(PENDING)
+  amountPaid    Float         @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  trip  Trip @relation(fields: [tripId], references: [id])
+  agent User @relation(fields: [agentId], references: [id])
+
+  @@unique([tripId, seatNumber])
+}
+
+model Parcel {
+  id             String       @id @default(cuid())
+  tripId         String
+  agentId        String
+  senderName     String
+  senderPhone    String
+  receiverName   String
+  receiverPhone  String
+  description    String
+  weightKg       Float?
+  fee            Float
+  status         ParcelStatus @default(RECEIVED)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  trip  Trip @relation(fields: [tripId], references: [id])
+  agent User @relation(fields: [agentId], references: [id])
+}
