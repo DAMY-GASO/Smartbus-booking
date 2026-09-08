@@ -1,9 +1,6 @@
 export type Role = "ADMIN" | "MANAGER" | "AGENT";
-
 export type TripStatus = "SCHEDULED" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
-
 export type BookingStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "REFUNDED";
-
 export type ParcelStatus = "RECEIVED" | "IN_TRANSIT" | "DELIVERED" | "RETURNED";
 
 export interface Bus {
@@ -48,6 +45,8 @@ export interface Booking {
   status: BookingStatus;
   amountPaid: number;
   createdAt: string;
+  /** Populated by the API via Prisma `include` — not present on every response. */
+  trip?: Trip;
 }
 
 export interface Parcel {
@@ -63,6 +62,8 @@ export interface Parcel {
   fee: number;
   status: ParcelStatus;
   createdAt: string;
+  /** Populated by the API via Prisma `include` — not present on every response. */
+  trip?: Trip;
 }
 
 export interface StatCardData {
