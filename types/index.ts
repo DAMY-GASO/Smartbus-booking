@@ -69,14 +69,14 @@ export interface Parcel {
 export interface StatCardData {
   label: string;
   value: string | number;
+  change?: string;
+  trend?: "up" | "down" | "neutral";
+}
 
-  export interface DashboardStats {
+export interface DashboardStats {
   totalTrips: number;
   totalBookings: number;
   totalParcels: number;
   totalRevenue: number;
   activeBuses: number;
-}
-  change?: string;
-  trend?: "up" | "down" | "neutral";
 }
